@@ -1,0 +1,67 @@
+{
+  "services": {
+    "telnet": {
+      "display": "Telnet", "category": "REMOTE_ACCESS", "nmap_names": ["telnet"], "ports": [23],
+      "why_it_matters": "Telnet is an unencrypted remote administration protocol. Traffic on the network, including login data, could be read by someone who is able to observe it. Finding it open does not by itself mean the device is vulnerable or compromised.",
+      "recommended_state": "Telnet disabled, with an encrypted alternative such as SSH used where remote administration is needed.",
+      "investigate": ["Is Telnet needed by this device or by an old management process?", "Does the device support SSH or another encrypted management option?", "Which hosts can reach this port?"],
+      "do_not": ["Do not attempt to log in, guess credentials or exploit the service to check it.", "Do not disable it before confirming that nothing depends on it."],
+      "mitigation": ["Disable Telnet if it is not required.", "Use encrypted alternatives where appropriate.", "If it must stay enabled, restrict the port to a trusted management network."]
+    },
+    "ftp": {
+      "display": "FTP", "category": "FILE_SHARING", "nmap_names": ["ftp"], "ports": [21],
+      "why_it_matters": "Plain FTP transfers files and, in its basic form, sends credentials and data without encryption. It is sometimes still used by older devices and backup jobs. An open FTP port is an item to review, not proof of a problem.",
+      "recommended_state": "FTP disabled, or replaced by an encrypted file transfer option, and reachable only from hosts that need it.",
+      "investigate": ["What is FTP used for on this device?", "Is anonymous or shared access enabled by design?", "Does the device offer SFTP or FTPS instead?"],
+      "do_not": ["Do not attempt anonymous or credentialed logins to check the service.", "Do not remove it before confirming that backups or integrations do not depend on it."],
+      "mitigation": ["Disable FTP if it is not needed.", "Prefer SFTP or FTPS where file transfer is required.", "Restrict access to trusted hosts or segments."]
+    },
+    "smb": {
+      "display": "SMB", "category": "FILE_SHARING", "nmap_names": ["microsoft-ds", "netbios-ssn", "smb"], "ports": [445, 139],
+      "why_it_matters": "SMB is commonly used for file and printer sharing and is normal on many Windows and file server systems. Unnecessary exposure increases the attack surface, but an open SMB service does not by itself mean compromise.",
+      "recommended_state": "SMB enabled only where file or printer sharing is required, and restricted to trusted hosts or network segments.",
+      "investigate": ["Is this device meant to share files or printers?", "Which hosts and segments can reach it?", "Is SMB reachable from guest or untrusted networks?"],
+      "do_not": ["Do not attempt to enumerate shares, log in or test credentials.", "Do not disable sharing before confirming that users or backups depend on it."],
+      "mitigation": ["Disable SMB on devices that do not need sharing.", "Restrict access to trusted hosts or segments where it is needed.", "Keep the operating system and sharing configuration up to date."]
+    },
+    "rdp": {
+      "display": "RDP", "category": "REMOTE_ACCESS", "nmap_names": ["ms-wbt-server", "rdp"], "ports": [3389],
+      "why_it_matters": "RDP provides remote desktop access and is a legitimate administration tool. Remote access services deserve attention because they allow interactive control of the device. An open RDP port does not by itself mean the device is compromised.",
+      "recommended_state": "RDP enabled only where remote desktop access is needed, and restricted to trusted hosts or network segments.",
+      "investigate": ["Who uses remote desktop on this device and why?", "Is the port reachable only from administrative hosts?", "Is network level authentication enabled on the device?"],
+      "do_not": ["Do not attempt to log in or test credentials.", "Do not block it before confirming that administrators rely on it."],
+      "mitigation": ["Disable RDP if it is not needed.", "Restrict it to trusted hosts or a management segment.", "Use a VPN or gateway instead of exposing it broadly."]
+    },
+    "ssh": {
+      "display": "SSH", "category": "REMOTE_ACCESS", "nmap_names": ["ssh"], "ports": [22],
+      "why_it_matters": "SSH provides encrypted remote administration and is common and expected on servers and network equipment. It matters most when it appears on a device that is not meant to be administered remotely, such as a camera or printer.",
+      "recommended_state": "SSH enabled only on devices that are meant to be administered remotely, with access restricted or controlled.",
+      "investigate": ["Is remote administration intended for this device?", "Which hosts are allowed to connect?", "Was SSH enabled recently or by a vendor default?"],
+      "do_not": ["Do not attempt to log in, guess credentials or run authentication tests.", "Do not disable it before confirming that administrators depend on it."],
+      "mitigation": ["Disable SSH if the device does not need remote administration.", "Restrict access to trusted hosts or a management segment.", "Prefer key based authentication where the device supports it."]
+    },
+    "mysql": {
+      "display": "MySQL", "category": "DATABASE", "nmap_names": ["mysql"], "ports": [3306],
+      "why_it_matters": "A reachable database service widens who can talk to the data store. This is expected on database servers and unusual on other devices. It does not by itself indicate a problem.",
+      "recommended_state": "Database ports reachable only from the application hosts that need them.",
+      "investigate": ["Is this device meant to host a database?", "Which hosts can reach the port?", "Is the listener bound to all interfaces by default?"],
+      "do_not": ["Do not attempt to connect, enumerate databases or test credentials."],
+      "mitigation": ["Bind the service to local or management interfaces if remote access is not needed.", "Restrict access to application hosts with firewall rules."]
+    },
+    "postgresql": {
+      "display": "PostgreSQL", "category": "DATABASE", "nmap_names": ["postgresql"], "ports": [5432],
+      "why_it_matters": "A reachable database service widens who can talk to the data store. This is expected on database servers and unusual on other devices. It does not by itself indicate a problem.",
+      "recommended_state": "Database ports reachable only from the application hosts that need them.",
+      "investigate": ["Is this device meant to host a database?", "Which hosts can reach the port?", "Is the listener bound to all interfaces by default?"],
+      "do_not": ["Do not attempt to connect, enumerate databases or test credentials."],
+      "mitigation": ["Bind the service to local or management interfaces if remote access is not needed.", "Restrict access to application hosts with firewall rules."]
+    },
+    "http":    {"display": "HTTP",  "category": "WEB", "nmap_names": ["http", "http-alt", "http-proxy"], "ports": [80, 8080]},
+    "https":   {"display": "HTTPS", "category": "WEB", "nmap_names": ["https", "https-alt", "ssl/http", "ssl/https"], "ports": [443, 8443]},
+    "dns":     {"display": "DNS",   "category": "NETWORK", "nmap_names": ["domain", "dns"], "ports": [53]},
+    "dhcp":    {"display": "DHCP",  "category": "NETWORK", "nmap_names": ["dhcp", "dhcps", "dhcpc"], "ports": [67]},
+    "ipp":     {"display": "IPP",   "category": "PRINTING", "nmap_names": ["ipp"], "ports": [631]},
+    "printer": {"display": "Printer service", "category": "PRINTING", "nmap_names": ["printer", "jetdirect", "pdl-datastream"], "ports": [515, 9100]},
+    "rtsp":    {"display": "RTSP",  "category": "MEDIA", "nmap_names": ["rtsp"], "ports": [554]}
+  }
+}

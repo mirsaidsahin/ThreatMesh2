@@ -1,0 +1,126 @@
+{
+  "disclaimer": "This is an investigation indicator based on observed network data. It does not confirm a vulnerability, an attack or a compromise.",
+  "context": {
+    "EXPECTED": "Device role '{role}' normally includes this service, so the finding is weighted lower.",
+    "UNEXPECTED": "Device role '{role}' does not normally include this service, so the finding is weighted higher.",
+    "UNKNOWN": "No device role is set for this device, so ThreatMesh cannot tell whether this service is expected here.",
+    "UNKNOWN_SERVICE": "The service could not be identified, so ThreatMesh cannot tell whether it is expected for role '{role}'."
+  },
+  "generic_service": {
+    "why_it_matters": "{service} ({category}) adds to what the device exposes on the network. Whether that is appropriate depends on the device's purpose.",
+    "recommended_state": "The service is offered only where the device's purpose requires it and is reachable only from networks that need it.",
+    "investigate": ["Who owns this device and what is its purpose?", "Was this service enabled intentionally?"],
+    "do_not": ["Do not attempt to log in, guess credentials or exploit the service.", "Do not disable it before confirming that nothing depends on it."],
+    "mitigation": ["Disable the service if it is not needed.", "Restrict access to trusted hosts or segments where it is needed."]
+  },
+  "events": {
+    "NEW_DEVICE": {
+      "severity": "INFO",
+      "summary": "Device was not observed during previous authorized scans.",
+      "what_happened": "A device with IP {ip} (MAC {mac}, vendor {vendor}) appeared in scan #{scan}. It was not observed in earlier authorized scans.",
+      "why_it_matters": "A new device can be harmless (a phone, a guest device, new equipment), but it changes who can reach the network, so its owner and purpose should be known.",
+      "how_detected": "Device identity (MAC address, or IP address when no MAC was visible) was compared with all earlier scans and no match was found.",
+      "recommended_state": "Every device on the network has a known owner and purpose.",
+      "investigate": ["Who owns this device and why is it connected?", "Do the vendor and hostname match what you would expect?", "Is it a guest, an employee device or new network equipment?"],
+      "do_not": ["Do not assume the device is malicious.", "Do not probe or block it intrusively before verifying ownership."],
+      "mitigation": ["Record the device in the asset inventory if it is legitimate.", "Move it to a guest or separate segment if it should not reach internal resources."]
+    },
+    "DEVICE_OFFLINE": {
+      "severity": "INFO",
+      "summary": "Device was observed in the previous scan but not in this one.",
+      "what_happened": "The device at {ip} (MAC {mac}) seen in scan #{prev_scan} was not observed in scan #{scan}.",
+      "why_it_matters": "Devices go offline for ordinary reasons (powered off, out of range, asleep). A device that should always be available and disappears may need attention.",
+      "how_detected": "The device lists of two consecutive scans with the same target scope were compared.",
+      "recommended_state": "Always-on devices stay visible; mobile devices appear intermittently.",
+      "investigate": ["Is the device expected to be on at scan time?", "Was the scan scope or timing different?", "Could host discovery have missed it?"],
+      "do_not": ["Do not assume failure or compromise from a single missed scan."],
+      "mitigation": ["Repeat the scan to confirm before acting.", "Check power and connectivity of devices that should be always on."]
+    },
+    "IP_CHANGED": {
+      "severity": "LOW",
+      "summary": "Same device identity observed with a different IP address.",
+      "what_happened": "A device identified by MAC {mac} was seen at {previous_ip} earlier and at {current_ip} in scan #{scan}.",
+      "why_it_matters": "IP changes are common with DHCP leases. Repeated or unexpected changes can point to address conflicts or configuration problems.",
+      "how_detected": "The same device identity (MAC address) was matched across scans and its IP address differed.",
+      "recommended_state": "Devices that must be reachable at a fixed address use a DHCP reservation or a static address.",
+      "investigate": ["Is the DHCP lease time short?", "Did the device move to another access point or segment?"],
+      "do_not": ["Do not treat an IP change alone as suspicious."],
+      "mitigation": ["Use DHCP reservations for infrastructure devices and printers.", "Key the asset inventory by MAC address rather than IP address."]
+    },
+    "NEW_PORT": {
+      "summary": "New open port {port}/{protocol} ({service}).",
+      "what_happened": "Port {port}/{protocol} ({service}) is open on {ip}. It was not open in scan #{prev_scan}.",
+      "why_it_matters": "Each open port is a reachable entry point. A new one means the exposed surface of the device changed, which may be intentional (software installed, service enabled) or unplanned.",
+      "how_detected": "Open ports of the same device identity were compared between scan #{prev_scan} and scan #{scan}.",
+      "recommended_state": "Open ports match the device's purpose and are documented.",
+      "investigate": ["Was software installed or a service enabled on the device recently?", "Is this a service the device is expected to offer?"],
+      "do_not": ["Do not attempt to log in, guess credentials or exploit the service to verify it."],
+      "mitigation": ["Disable the service if it is not needed.", "Restrict access to trusted hosts or segments if it is needed."]
+    },
+    "CLOSED_PORT": {
+      "summary": "Port {port}/{protocol} ({service}) is no longer open.",
+      "what_happened": "Port {port}/{protocol} ({service}) was open on {ip} in scan #{prev_scan} and is not open in scan #{scan}.",
+      "why_it_matters": "A closed port can mean a service was stopped on purpose, stopped unexpectedly or is temporarily filtered. If the service was needed, this can be an availability issue.",
+      "how_detected": "Open ports of the same device identity were compared between scan #{prev_scan} and scan #{scan}.",
+      "recommended_state": "Changes to open ports are intentional and recorded.",
+      "investigate": ["Was the service stopped intentionally?", "Does anything depend on it?"],
+      "do_not": ["Do not restart or reconfigure the service remotely without authorization."],
+      "mitigation": ["Update the documented baseline if the change was intentional.", "Restore the service through the normal change process if it was closed unintentionally."]
+    },
+    "NEW_SERVICE": {
+      "summary": "New service {service} observed.",
+      "what_happened": "Service {service} ({ports}) was detected on {ip}. This service type was not detected on the device in scan #{prev_scan}.",
+      "why_it_matters": "A service type the device did not offer before changes what the device does on the network. It can be legitimate (new software) or unplanned.",
+      "how_detected": "Service names reported by Nmap service detection were compared between scan #{prev_scan} and scan #{scan} for the same device identity.",
+      "recommended_state": "The services a device offers match its purpose and are documented.",
+      "investigate": ["Was software installed or enabled on the device recently?", "Is this a service the device is expected to offer?"],
+      "do_not": ["Do not attempt to log in, guess credentials or exploit the service to verify it."],
+      "mitigation": ["Disable the service if it is not needed.", "Restrict access to trusted hosts or segments if it is needed."]
+    },
+    "SERVICE_REMOVED": {
+      "summary": "Service {service} no longer observed.",
+      "what_happened": "Service {service} ({ports}) detected on {ip} in scan #{prev_scan} was not detected in scan #{scan}.",
+      "why_it_matters": "A removed service can be an intended cleanup, a stopped process or a detection difference between scans.",
+      "how_detected": "Service names reported by Nmap service detection were compared between scan #{prev_scan} and scan #{scan}.",
+      "recommended_state": "Service changes are intentional and recorded.",
+      "investigate": ["Was the service stopped or removed on purpose?", "Does anything depend on it?"],
+      "do_not": ["Do not restart or reconfigure the service remotely without authorization."],
+      "mitigation": ["Update the documented baseline if the change was intentional.", "Restore the service through the normal change process if it was removed unintentionally."]
+    },
+    "SERVICE_VERSION_CHANGED": {
+      "summary": "Version of {service} on {port}/{protocol} changed.",
+      "what_happened": "The version reported for {service} on {ip} port {port}/{protocol} changed from '{previous}' to '{current}' between scan #{prev_scan} and scan #{scan}.",
+      "why_it_matters": "Version changes usually mean software was updated or replaced. Updates are normally good; unexpected changes or downgrades should be understood. Nmap version detection relies on banners and can be inaccurate.",
+      "how_detected": "Product and version strings reported by Nmap service detection were compared for the same port.",
+      "recommended_state": "Software runs a supported, maintained version and changes are recorded.",
+      "investigate": ["Was this a planned update?", "Is the new version supported and maintained?"],
+      "do_not": ["Do not assume a version is vulnerable without checking the vendor's advisories."],
+      "mitigation": ["Keep software on supported versions.", "Record the new version in the baseline."]
+    },
+    "EXPOSED_SERVICE": {
+      "summary": "{service} ({port}/{protocol}) is reachable on the device.",
+      "what_happened": "{service} is reachable on {ip} at {port}/{protocol}.",
+      "how_detected": "The open port and service name were reported by Nmap service detection in scan #{scan}. The weighting comes from ThreatMesh rules and the device role."
+    },
+    "UNKNOWN_SERVICE": {
+      "summary": "Unidentified service on {port}/{protocol}.",
+      "what_happened": "Port {port}/{protocol} on {ip} is open but Nmap could not identify the service.",
+      "why_it_matters": "Unidentified services are harder to assess. They may be custom software, an unusual protocol or a vendor management interface.",
+      "how_detected": "Nmap service detection returned no service name for this port in scan #{scan}.",
+      "recommended_state": "Every open port maps to a known, documented service.",
+      "investigate": ["Which software on the device listens on this port?", "Is it a vendor specific management or application port?", "Does the device documentation mention it?"],
+      "do_not": ["Do not send crafted or fuzzed traffic to identify it.", "Do not attempt to authenticate to the service."],
+      "mitigation": ["Identify the service through the device owner or vendor documentation.", "Close or restrict the port if it is not needed."]
+    },
+    "MULTIPLE_REMOTE_ACCESS": {
+      "summary": "Multiple remote access services on one device.",
+      "what_happened": "{ip} offers several remote access services: {services}.",
+      "why_it_matters": "Each remote access service is a separate way to reach the device. More of them means more places to configure, update and monitor.",
+      "how_detected": "Detected services in the REMOTE_ACCESS category were counted for this device in scan #{scan}.",
+      "recommended_state": "Only the remote access methods that are actually needed are enabled, restricted to trusted hosts.",
+      "investigate": ["Which of these services is actually used?", "Are they restricted to administrative hosts?"],
+      "do_not": ["Do not attempt to log in or test credentials.", "Do not disable all of them at once without another way to administer the device."],
+      "mitigation": ["Disable the remote access services that are not used.", "Restrict the remaining ones to trusted hosts or a management segment."]
+    }
+  }
+}

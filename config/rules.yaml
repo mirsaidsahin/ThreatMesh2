@@ -1,0 +1,38 @@
+# ThreatMesh Custom Risk Score kurallari. Bu skor CVSS DEGILDIR; heuristic bir
+# "inceleme onceligi" gostergesidir. Degerleri kodu degistirmeden buradan ayarla.
+score_cap: 100
+
+# Alt sinirlar (skor >= deger olan en yuksek seviye secilir)
+levels:
+  LOW: 0
+  MEDIUM: 26
+  HIGH: 51
+  CRITICAL: 76
+
+# Baglam carpani: cihaz rolune gore servis beklenen/beklenmeyen/bilinmeyen.
+# Rol atanmamissa veya servis taninmiyorsa UNKNOWN (1.0) kullanilir.
+context_multipliers:
+  EXPECTED: 0.25
+  UNKNOWN: 1.0
+  UNEXPECTED: 1.5
+
+# Durum bazli: servis o scan'de acik oldugu surece puan verir
+service_points:
+  telnet: 20
+  ftp: 15
+  smb: 20
+  rdp: 20
+  mysql: 10
+  postgresql: 10
+unknown_service_points: 15          # Nmap'in tanimlayamadigi servis
+multiple_remote_access_points: 10   # >=2 farkli uzaktan erisim servisi
+
+# Puani 0 olan hassas servis, rolde BEKLENMIYORSA bu puani alir
+unexpected_bonus_points: 10
+unexpected_bonus_categories: [REMOTE_ACCESS, FILE_SHARING, DATABASE]
+
+# Degisiklik bazli: sadece o scan'de olusan diff event'leri
+event_points:
+  NEW_DEVICE: 10
+  NEW_PORT: 10
+  NEW_SERVICE: 10

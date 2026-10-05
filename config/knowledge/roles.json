@@ -1,0 +1,11 @@
+{
+  "roles": {
+    "router":      {"description": "Router / gateway / access point", "expected_services": ["http", "https", "ssh", "dns", "dhcp"]},
+    "printer":     {"description": "Network printer", "expected_services": ["http", "https", "ipp", "printer"]},
+    "server":      {"description": "General purpose server", "expected_services": ["http", "https", "ssh", "dns", "dhcp", "mysql", "postgresql", "smb"]},
+    "workstation": {"description": "Desktop / laptop", "expected_services": ["smb"]},
+    "camera":      {"description": "IP camera / recorder", "expected_services": ["http", "https", "rtsp"]},
+    "iot":         {"description": "Other IoT / appliance", "expected_services": ["http", "https"]},
+    "phone":       {"description": "Phone / tablet", "expected_services": []}
+  }
+}

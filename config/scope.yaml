@@ -1,0 +1,15 @@
+# ThreatMesh scope dosyasi. Kali collector bu dosyada olmayan hedefi TARAMAZ.
+# authorized: true yazmadan profil calismaz.
+profiles:
+  home_hotspot:
+    authorized: true
+    description: "Kendi telefon hotspot'um (gelistirme/test)"
+    subnets:
+      - 172.20.10.0/28        # Kali'de `ip route` ile dogrula, gerekirse degistir
+    exclude: []
+
+  restaurant:
+    authorized: false         # Yazili izin alinip subnet doldurulunca true yap
+    description: "Restoran agi (sahibinin yazili izniyle)"
+    subnets: []               # Orn: 192.168.1.0/24
+    exclude: []               # POS ve odeme terminali IP'leri buraya
